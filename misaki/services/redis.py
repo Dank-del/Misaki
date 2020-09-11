@@ -16,28 +16,27 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Build image
-FROM python:3.8-slim AS compile-image
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends build-essential gcc
-RUN apt-get install -y --no-install-recommends libyaml-dev
+import redis as redis_lib
+import sys
 
-COPY requirements.txt .
-RUN pip install --user -r requirements.txt
+from misaki import log
+from misaki.config import get_str_key, get_int_key
 
+# Init Redis
+redis = redis_lib.StrictRedis(
+    host=get_str_key("REDIS_URI"),
+    port=get_str_key("REDIS_PORT"),
+    db=get_int_key("REDIS_DB_FSM"),
+    decode_responses=True
+)
 
-# Run image
-FROM python:3.8-slim AS run-image
+bredis = redis_lib.StrictRedis(
+    host=get_str_key("REDIS_URI"),
+    port=get_str_key("REDIS_PORT"),
+    db=get_int_key("REDIS_DB_FSM")
+)
 
-# Temp
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends libyaml-dev
-
-COPY --from=compile-image /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
-
-ADD . /misaki
-RUN rm -rf /misaki/data/
-WORKDIR /misaki
-
-CMD [ "python", "-m", "misaki" ]
+try:
+    redis.ping()
+except redis_lib.ConnectionError:
+    sys.exit(log.critical("Can't connect to RedisDB! Exiting..."))

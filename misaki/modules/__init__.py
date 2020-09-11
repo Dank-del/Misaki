@@ -1,5 +1,6 @@
 # Copyright (C) 2018 - 2020 MrYacha. All rights reserved. Source code available under the AGPL.
 # Copyright (C) 2019 Aiogram
+
 #
 # This file is part of MisakiBot.
 #
@@ -16,28 +17,22 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Build image
-FROM python:3.8-slim AS compile-image
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends build-essential gcc
-RUN apt-get install -y --no-install-recommends libyaml-dev
 
-COPY requirements.txt .
-RUN pip install --user -r requirements.txt
+LOADED_MODULES = []
 
 
-# Run image
-FROM python:3.8-slim AS run-image
+def list_all_modules():
+    from os.path import dirname, basename, isfile
+    import glob
 
-# Temp
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends libyaml-dev
+    mod_paths = glob.glob(dirname(__file__) + "/*.py")
+    all_modules = [
+        basename(f)[:-3]
+        for f in mod_paths
+        if isfile(f) and f.endswith(".py") and not f.endswith("__init__.py")
+    ]
+    return all_modules
 
-COPY --from=compile-image /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
 
-ADD . /misaki
-RUN rm -rf /misaki/data/
-WORKDIR /misaki
-
-CMD [ "python", "-m", "misaki" ]
+ALL_MODULES = sorted(list_all_modules())
+__all__ = ALL_MODULES + ["ALL_MODULES"]

@@ -16,28 +16,15 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Build image
-FROM python:3.8-slim AS compile-image
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends build-essential gcc
-RUN apt-get install -y --no-install-recommends libyaml-dev
+import sentry_sdk
+from sentry_sdk.integrations.redis import RedisIntegration
 
-COPY requirements.txt .
-RUN pip install --user -r requirements.txt
+from misaki.config import get_str_key
+from misaki.utils.logger import log
 
+log.info("Starting sentry.io integraion...")
 
-# Run image
-FROM python:3.8-slim AS run-image
-
-# Temp
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends libyaml-dev
-
-COPY --from=compile-image /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
-
-ADD . /misaki
-RUN rm -rf /misaki/data/
-WORKDIR /misaki
-
-CMD [ "python", "-m", "misaki" ]
+sentry_sdk.init(
+    get_str_key('SENTRY_API_KEY'),
+    integrations=[RedisIntegration()]
+)

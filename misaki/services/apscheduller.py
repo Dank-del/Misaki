@@ -16,28 +16,29 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-# Build image
-FROM python:3.8-slim AS compile-image
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends build-essential gcc
-RUN apt-get install -y --no-install-recommends libyaml-dev
+from apscheduler.executors.asyncio import AsyncIOExecutor
+from apscheduler.jobstores.redis import RedisJobStore
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from pytz import utc
 
-COPY requirements.txt .
-RUN pip install --user -r requirements.txt
+from misaki.config import get_str_key, get_int_key
+from misaki.utils.logger import log
 
+DEFAULT = "default"
 
-# Run image
-FROM python:3.8-slim AS run-image
+jobstores = {
+    DEFAULT: RedisJobStore(
+        host=get_str_key("REDIS_URI"),
+        port=get_str_key("REDIS_PORT"),
+        db=get_int_key("REDIS_DB_FSM")
+    )
+}
+executors = {DEFAULT: AsyncIOExecutor()}
+job_defaults = {"coalesce": False, "max_instances": 3}
 
-# Temp
-RUN apt-get update
-RUN apt-get install -y --no-install-recommends libyaml-dev
+scheduler = AsyncIOScheduler(
+    jobstores=jobstores, executors=executors, job_defaults=job_defaults, timezone=utc
+)
 
-COPY --from=compile-image /root/.local /root/.local
-ENV PATH=/root/.local/bin:$PATH
-
-ADD . /misaki
-RUN rm -rf /misaki/data/
-WORKDIR /misaki
-
-CMD [ "python", "-m", "misaki" ]
+log.info("Starting apscheduller...")
+scheduler.start()
