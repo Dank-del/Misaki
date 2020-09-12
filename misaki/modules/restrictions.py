@@ -19,10 +19,10 @@
 
 import asyncio
 import datetime  # noqa: F401
+from contextlib import suppress
 
 from aiogram.utils.exceptions import MessageNotModified
 from babel.dates import format_datetime, format_timedelta
-from contextlib import suppress
 
 from misaki import BOT_ID, bot
 from misaki.decorator import register

@@ -21,32 +21,28 @@
 import asyncio
 import csv
 import io
+import os
 import re
+import time
+import uuid
+from contextlib import suppress
+from datetime import datetime, timedelta
 
 import babel
 import ujson
-import uuid
-import os
-import time
-
-from contextlib import suppress
-from pymongo import DeleteMany, InsertOne
-
 from aiogram import types
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import InputFile
 from aiogram.types.inline_keyboard import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.callback_data import CallbackData
 from aiogram.utils.exceptions import Unauthorized, NeedAdministratorRightsInTheChannel, ChatNotFound
-
 from babel.dates import format_timedelta
-from datetime import datetime, timedelta
+from pymongo import DeleteMany, InsertOne
 
 from misaki import OWNER_ID, BOT_ID, OPERATORS, decorator, bot
 from misaki.services.mongo import db
 from misaki.services.redis import redis
 from misaki.services.telethon import tbot
-
 from .utils.connections import get_connected_chat, chat_connection
 from .utils.language import get_strings_dec, get_strings, get_string
 from .utils.message import need_args_dec, get_cmd
@@ -62,6 +58,8 @@ class ImportFbansFileWait(StatesGroup):
 
 
 delfed_cb = CallbackData('delfed_cb', 'fed_id', 'creator_id')
+
+
 # functions
 
 
@@ -141,7 +139,9 @@ def get_fed_user_text(skip_no_fed=False):
                         fed = None
 
             return await func(*args, fed, user, text, **kwargs)
+
         return wrapped_1
+
     return wrapped
 
 

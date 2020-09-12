@@ -22,6 +22,7 @@ import html
 
 from aiogram.dispatcher.middlewares import BaseMiddleware
 
+from misaki import dp
 from misaki.decorator import register
 from misaki.modules import LOADED_MODULES
 from misaki.services.mongo import db
@@ -30,7 +31,6 @@ from .utils.connections import chat_connection
 from .utils.disable import disableable_dec
 from .utils.language import get_strings_dec
 from .utils.user_details import get_user_dec, get_user_link, is_user_admin, get_admins_rights
-from misaki import dp
 
 
 async def update_users_handler(message):

@@ -23,7 +23,6 @@ from aiogram.dispatcher.filters import CommandStart
 
 from misaki.decorator import register
 from misaki.services.mongo import db
-
 from .utils.connections import chat_connection
 from .utils.disable import disableable_dec
 from .utils.language import get_strings_dec

@@ -23,7 +23,6 @@ from aiogram.types.chat_permissions import ChatPermissions
 
 from misaki import bot
 from misaki.decorator import register
-
 from .utils.connections import chat_connection
 from .utils.language import get_strings_dec
 

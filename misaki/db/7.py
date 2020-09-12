@@ -17,10 +17,10 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+from pymongo import UpdateOne
+
 from misaki.services.mongo import mongodb
 from misaki.utils.logger import log
-
-from pymongo import UpdateOne
 
 log.info('Misaki Database v6')
 log.info("Filters: migrate 'reply_message'")

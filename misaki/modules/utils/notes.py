@@ -405,7 +405,7 @@ async def vars_parser(text, message, chat_id, md=False, event=None, user=None):
                 if 'new_chat_members' in event and event.new_chat_members != [] and event.new_chat_members[0].username
                    is not None
                 else '@' + user.username
-                if user.username is not None else mention)
+    if user.username is not None else mention)
     chat_id = message.chat.id
     chat_name = html.escape(message.chat.title or 'Local', quote=False)
     chat_nick = message.chat.username or chat_name

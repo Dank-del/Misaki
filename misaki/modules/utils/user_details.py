@@ -241,7 +241,7 @@ async def get_user_and_text(message, send_text=True, allow_self=False):
         if mention == args[1]:
             if len(args) > 2:
                 text = args[2]
-            user = await get_user_by_username(mention) if item.type != 'text_mention'\
+            user = await get_user_by_username(mention) if item.type != 'text_mention' \
                 else await get_user_by_id(int(item.user.id))
             if not user and send_text:
                 await message.answer("I can't get the user!")
@@ -350,4 +350,5 @@ def get_chat_dec(allow_self=False, fed=False):
             return await func(*args, chat, **kwargs)
 
         return wrapped_1
+
     return wrapped

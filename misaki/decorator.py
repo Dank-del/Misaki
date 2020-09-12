@@ -25,9 +25,9 @@ from sentry_sdk import configure_scope
 
 from misaki import BOT_USERNAME, dp
 from misaki.config import get_bool_key
+from misaki.modules.error import parse_update
 from misaki.utils.filters import ALL_FILTERS
 from misaki.utils.logger import log
-from misaki.modules.error import parse_update
 
 DEBUG_MODE = get_bool_key('DEBUG_MODE')
 ALLOW_F_COMMANDS = get_bool_key("allow_forwards_commands")

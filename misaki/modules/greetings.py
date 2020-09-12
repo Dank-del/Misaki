@@ -25,9 +25,9 @@ from datetime import datetime
 
 from aiogram.dispatcher.filters.builtin import CommandStart
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.utils.exceptions import MessageToDeleteNotFound, MessageCantBeDeleted, BadRequest, ChatAdminRequired
 from aiogram.types.inline_keyboard import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.types.input_media import InputMediaPhoto
+from aiogram.utils.exceptions import MessageToDeleteNotFound, MessageCantBeDeleted, BadRequest, ChatAdminRequired
 from apscheduler.jobstores.base import JobLookupError
 from captcha.image import ImageCaptcha
 from telethon.tl.custom import Button
@@ -364,7 +364,6 @@ async def reset_security_note(message, chat, strings):
 @register(only_groups=True, f='welcome')
 @get_strings_dec('greetings')
 async def welcome_security_handler(message, strings):
-
     if len(message.new_chat_members) > 1:
         # FIXME: Misaki doesnt support adding multiple users currently
         return
@@ -728,7 +727,6 @@ async def welcome_security_passed(message, state, strings):
 @register(only_groups=True, f='welcome')
 @get_strings_dec('greetings')
 async def welcome_trigger(message, strings):
-
     if len(message.new_chat_members) > 1:
         # FIXME: Misaki doesnt support adding multiple users currently
         return

@@ -18,17 +18,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from aiogram.utils.exceptions import MessageNotModified
+from contextlib import suppress
+
 from aiogram.types.inline_keyboard import (
     InlineKeyboardMarkup,
     InlineKeyboardButton
 )
-
-from contextlib import suppress
-from .language import select_lang_keyboard
+from aiogram.utils.exceptions import MessageNotModified
 
 from misaki.decorator import register
 from misaki.modules.utils.disable import disableable_dec
+from .language import select_lang_keyboard
 from .utils.language import get_strings_dec
 
 
@@ -49,8 +49,8 @@ async def get_start_func(message, strings, edit=False):
     msg = message.message if hasattr(message, 'message') else message
     task = msg.edit_text if edit else msg.reply
     buttons = InlineKeyboardMarkup()
-    buttons.add(InlineKeyboardButton(strings['btn_help'], callback_data='get_help'),)
-    buttons.add(InlineKeyboardButton(strings['btn_chat'], url='https://t.me/chiruzon'),)
+    buttons.add(InlineKeyboardButton(strings['btn_help'], callback_data='get_help'), )
+    buttons.add(InlineKeyboardButton(strings['btn_chat'], url='https://t.me/chiruzon'), )
     # Handle error when user click the button 2 or more times simultaneously
     with suppress(MessageNotModified):
         await task(strings['start_hi'], reply_markup=buttons)
@@ -81,6 +81,6 @@ async def back_btn(event):
 @get_strings_dec('pm_menu')
 async def help_cmd(message, strings):
     button = InlineKeyboardMarkup().add(InlineKeyboardButton(
-        strings['click_btn'], url='https://wiki.sophiebot.gq'
+        strings['click_btn'], url='https://github.com/Dank-del/Misaki/wiki/'
     ))
     await message.reply(strings['help_header'], reply_markup=button)

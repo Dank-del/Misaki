@@ -18,6 +18,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
+from contextlib import suppress
+from datetime import datetime, timedelta
 
 from aiogram.types.inline_keyboard import (
     InlineKeyboardButton,
@@ -27,8 +29,6 @@ from aiogram.utils.deep_linking import get_start_link
 from aiogram.utils.exceptions import MessageNotModified
 from babel.dates import format_timedelta
 from bson.objectid import ObjectId
-from contextlib import suppress
-from datetime import datetime, timedelta
 
 from misaki import BOT_ID, bot
 from misaki.decorator import register
@@ -110,13 +110,13 @@ async def warn_func(message, chat, user, text, strings, filter_action=False):
                 if data['mode'] == 'tmute':
                     time = timedelta(days=data['time']['days'], seconds=data['time']['seconds'])
                     text = strings['max_warn_exceeded:tmute'] % \
-                        (member, format_timedelta(time, locale=strings['language_info']['babel']))
+                           (member, format_timedelta(time, locale=strings['language_info']['babel']))
                     if filter_action:
                         return await bot.send_message(chat_id, text)
                     return await message.reply(text)
                 else:
                     text = strings['max_warn_exceeded'] % \
-                        (member, strings['banned'] if data['mode'] == 'ban' else strings['muted'])
+                           (member, strings['banned'] if data['mode'] == 'ban' else strings['muted'])
                     if filter_action:
                         return await bot.send_message(chat_id, text)
                     return await message.reply(text)
