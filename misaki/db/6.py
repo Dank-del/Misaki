@@ -29,11 +29,9 @@ queue = []
 
 all_bans = mongodb.fed_bans.find({'user_id': {'$type': 'string'}})
 all_bans_count = all_bans.count()
-counter = 0
 changed_feds = 0
 
-for ban in all_bans:
-    counter += 1
+for counter, ban in enumerate(all_bans):
     changed_feds += 1
     queue.append(DeleteOne({'_id': ban['_id']}))
 

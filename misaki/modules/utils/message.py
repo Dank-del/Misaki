@@ -51,8 +51,7 @@ def get_args_str(message):
 
 
 def get_cmd(message):
-    cmd = message.get_command().lower()[1:].split('@')[0]
-    return cmd
+    return message.get_command().lower()[1:].split('@')[0]
 
 
 def convert_time(time_val):
@@ -63,18 +62,16 @@ def convert_time(time_val):
     unit = time_val[-1]
     kwargs = {}
 
-    if unit == 'm':
-        kwargs['minutes'] = time_num
+    if unit == 'd':
+        kwargs['days'] = time_num
     elif unit == 'h':
         kwargs['hours'] = time_num
-    elif unit == 'd':
-        kwargs['days'] = time_num
+    elif unit == 'm':
+        kwargs['minutes'] = time_num
     else:
         raise InvalidTimeUnit()
 
-    val = timedelta(**kwargs)
-
-    return val
+    return timedelta(**kwargs)
 
 
 def convert_timedelta(time):

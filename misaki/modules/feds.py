@@ -176,7 +176,7 @@ def is_fed_owner(func):
         fed = args[1]
         user_id = message.from_user.id
 
-        if not user_id == fed["creator"] and user_id != OWNER_ID:
+        if user_id != fed["creator"] and user_id != OWNER_ID:
             text = (await get_string(message.chat.id, "feds", 'need_fed_admin')).format(name=fed['fed_name'])
             await message.reply(text)
             return
@@ -192,10 +192,13 @@ def is_fed_admin(func):
         fed = args[1]
         user_id = message.from_user.id
 
-        if not user_id == fed["creator"] and user_id != OWNER_ID:
-            if 'admins' not in fed or user_id not in fed['admins']:
-                text = (await get_string(message.chat.id, "feds", 'need_fed_admin')).format(name=fed['fed_name'])
-                return await message.reply(text)
+        if (
+            user_id != fed["creator"]
+            and user_id != OWNER_ID
+            and ('admins' not in fed or user_id not in fed['admins'])
+        ):
+            text = (await get_string(message.chat.id, "feds", 'need_fed_admin')).format(name=fed['fed_name'])
+            return await message.reply(text)
 
         return await func(*args, **kwargs)
 
@@ -218,7 +221,7 @@ async def new_fed(message, strings):
         await message.reply(strings['fed_name_long'])
         return
 
-    if await db.feds.find_one({'creator': user_id}) and not user_id == OWNER_ID:
+    if await db.feds.find_one({'creator': user_id}) and user_id != OWNER_ID:
         await message.reply(strings['can_only_1_fed'])
         return
 
@@ -409,9 +412,12 @@ async def demote_from_fed(message, fed, user, text, strings):
 @get_strings_dec("feds")
 async def set_fed_log_chat(message, fed, chat, strings):
     chat_id = chat['chat_id'] if 'chat_id' in chat else chat['id']
-    if chat['type'] == 'channel':
-        if await check_admin_rights(chat_id, BOT_ID, ['can_post_messages']) is not True:
-            return await message.reply(strings['no_right_to_post'])
+    if (
+        chat['type'] == 'channel'
+        and await check_admin_rights(chat_id, BOT_ID, ['can_post_messages'])
+        is not True
+    ):
+        return await message.reply(strings['no_right_to_post'])
 
     if 'log_chat_id' in fed and fed['log_chat_id']:
         await message.reply(strings['already_have_chatlog'].format(name=fed['fed_name']))
@@ -979,11 +985,7 @@ async def importfbans_func(message, fed, strings, document=None):
         if 'reason' in row:
             new['reason'] = row['reason']
 
-        if 'by' in row:
-            new['by'] = int(row['by'])
-        else:
-            new['by'] = message.from_user.id
-
+        new['by'] = int(row['by']) if 'by' in row else message.from_user.id
         if 'time' in row:
             new['time'] = datetime.fromtimestamp(int(row['time']))
         else:
