@@ -59,6 +59,7 @@ async def select_lang_keyboard(message, strings, edit=False):
 
     for lang in LANGUAGES.values():
         lang_info = lang['language_info']
+        print(lang_info)
         markup.insert(InlineKeyboardButton(
             lang_info['flag'] + " " + lang_info['babel'].display_name,
             callback_data=select_lang_cb.new(lang=lang_info['code'], back_btn=False if edit is False else True))
