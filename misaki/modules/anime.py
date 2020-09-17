@@ -1,5 +1,3 @@
-import io
-import json
 import aiohttp
 from urllib.parse import quote as urlencode
 from misaki import bot
@@ -17,17 +15,20 @@ async def anime(message):
   session = aiohttp.ClientSession() 
   async with session.get(url) as resp:
     a = await resp.json()
-    if 'data' in a:
-      pic = f'{a["data"][0]["attributes"]["coverImage"]["small"]}'
-      info = f'{a["data"][0]["attributes"]["titles"]["en"]}\n'
-      info += f'{a["data"][0]["attributes"]["titles"]["en_jp"]}\n'
-      info += f'{a["data"][0]["attributes"]["titles"]["ja_jp"]}\n'
-      info += f' - Rating: {a["data"][0]["attributes"]["averageRating"]}\n'
-      info += f' - Release Date: {a["data"][0]["attributes"]["startDate"]}\n'
-      info += f' - End Date: {a["data"][0]["attributes"]["endDate"]}\n'
-      info += f' - Status: {a["data"][0]["attributes"]["status"]}\n'
-      info += f' - Description: {a["data"][0]["attributes"]["description"]}\n'
+    if 'data' in a.keys():
+      data = a["data"][0]
+      pic = f'{data["attributes"]["coverImage"]["original"] if data["attributes"].get("coverImage", "") else ""}'
+      id = f'{a["data"][0]["id"]}'
+      info = f'{data["attributes"]["titles"]["en"]}\n'
+      info += f'{data["attributes"]["titles"]["en_jp"]}\n'
+      info += f'{data["attributes"]["titles"]["ja_jp"]}\n'
+      info += f' - Rating: {data["attributes"]["averageRating"]}\n'
+      info += f' - Release Date: {data["attributes"]["startDate"]}\n'
+      info += f' - End Date: {data["attributes"]["endDate"]}\n'
+      info += f' - Status: {data["attributes"]["status"]}\n'
+      info += f' - Description: {data["attributes"]["description"]}\n'
+      aurl = f'kitsu.io/anime/'
       output = (f"{pic}\n{info}")
-      await message.reply(output)
-      return
-
+      if len(info) > 1024:
+        info = info[0:500] + "....\nRead more here :" +aurl+id
+      await message.reply_photo(pic, caption=info)
