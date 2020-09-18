@@ -1,4 +1,5 @@
 import aiohttp
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from urllib.parse import quote as urlencode
 from misaki import bot
 from misaki.decorator import register
@@ -19,16 +20,16 @@ async def anime(message):
       data = a["data"][0]
       pic = f'{data["attributes"]["coverImage"]["original"] if data["attributes"].get("coverImage", "") else ""}'
       id = f'{a["data"][0]["id"]}'
-      info = f'{data["attributes"]["titles"]["en"]}\n'
-      info += f'{data["attributes"]["titles"]["en_jp"]}\n'
+      info = f'{data["attributes"]["titles"]["en_jp"]}\n'
       info += f'{data["attributes"]["titles"]["ja_jp"]}\n'
-      info += f' - Rating: {data["attributes"]["averageRating"]}\n'
-      info += f' - Release Date: {data["attributes"]["startDate"]}\n'
-      info += f' - End Date: {data["attributes"]["endDate"]}\n'
-      info += f' - Status: {data["attributes"]["status"]}\n'
-      info += f' - Description: {data["attributes"]["description"]}\n'
-      aurl = f'kitsu.io/anime/'
-      output = (f"{pic}\n{info}")
+      info += f' * Rating: {data["attributes"]["averageRating"]}\n'
+      info += f' * Release Date: {data["attributes"]["startDate"]}\n'
+      info += f' * End Date: {data["attributes"]["endDate"]}\n'
+      info += f' * Status: {data["attributes"]["status"]}\n'
+      info += f' * Description: {data["attributes"]["description"]}\n'
+      aurl = f'kitsu.io/anime/'+id
       if len(info) > 1024:
-        info = info[0:500] + "....\nRead more here :" +aurl+id
-      await message.reply_photo(pic, caption=info)
+        info = info[0:500] + "...."
+      link_btn = InlineKeyboardMarkup()
+      link_btn.insert(InlineKeyboardButton("Read more", url=aurl))
+      await message.reply_photo(pic, caption=info, reply_markup=link_btn)
