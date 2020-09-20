@@ -1,3 +1,5 @@
+# module to find anime info from kitsu.io by t.me/dank_as_fuck ( misaki@eagleunion.tk)
+
 import aiohttp
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from urllib.parse import quote as urlencode
@@ -11,7 +13,7 @@ from .utils.message import need_args_dec, get_args_str
 async def anime(message): 
   query = get_args_str(message).lower() 
   headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0"} 
-  query = urlencode(query) 
+  query.replace('', '%20') 
   url = f'https://kitsu.io/api/edge/anime?filter%5Btext%5D={urlencode(query)}' 
   session = aiohttp.ClientSession() 
   async with session.get(url) as resp:
@@ -32,4 +34,7 @@ async def anime(message):
         info = info[0:500] + "...."
       link_btn = InlineKeyboardMarkup()
       link_btn.insert(InlineKeyboardButton("Read more", url=aurl))
-      await message.reply_photo(pic, caption=info, reply_markup=link_btn)
+      if pic:
+         await message.reply_photo(pic, caption=info, reply_markup=link_btn)
+      else:
+         await message.reply_text(info, reply_markup=link_btn)

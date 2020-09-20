@@ -11,7 +11,7 @@ from .utils.message import need_args_dec, get_args_str
 async def manime(message):
    query = get_args_str(message).lower()
    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0"} 
-   query = urlencode(query)
+   query.replace('', '%20')
    surl = f'https://api.jikan.moe/v3/search/anime?q={urlencode(query)}'
    session = aiohttp.ClientSession()
    async with session.get(surl) as resp:
@@ -36,7 +36,7 @@ async def manime(message):
 async def character(message):
    query = get_args_str(message).lower()
    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:70.0) Gecko/20100101 Firefox/70.0"} 
-   query = urlencode(query)
+   query.replace('', '%20')
    csurl = f'https://api.jikan.moe/v3/search/character?q={urlencode(query)}'
    session = aiohttp.ClientSession()
    async with session.get(csurl) as resp:
@@ -44,5 +44,7 @@ async def character(message):
     if 'results' in a.keys():
        info = f'  • Name : {a["results"][0]["name"]}\n'
        pic = f'{a["results"][0]["image_url"]}'
-       info += f' • MyAnimeList Link : {a["results"][0]["url"]}\n'
-       await message.reply_photo(pic, caption=info)
+       mclink = f'{a["results"][0]["url"]}\n'
+       clink_btn = InlineKeyboardMarkup()
+       clink_btn.insert(InlineKeyboardButton("MyAnimeList Link", url=mclink))
+       await message.reply_photo(pic, caption=info, reply_markup=clink_btn)
