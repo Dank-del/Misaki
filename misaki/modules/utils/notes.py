@@ -57,11 +57,7 @@ def tparse_ent(ent, text, as_html=True):
     if sys.maxunicode == 0xffff:
         return text[offset:offset + length]
 
-    if not isinstance(text, bytes):
-        entity_text = text.encode('utf-16-le')
-    else:
-        entity_text = text
-
+    entity_text = text.encode('utf-16-le') if not isinstance(text, bytes) else text
     entity_text = entity_text[offset * 2:(offset + length) * 2].decode('utf-16-le')
 
     if etype == 'bold':
@@ -100,17 +96,13 @@ def get_parsed_msg(message):
     text = message.caption or message.text
 
     mode = get_msg_parse(text)
-    if mode == 'html':
-        as_html = True
-    else:
-        as_html = False
-
+    as_html = True if mode == 'html' else False
     entities = message.caption_entities or message.entities
 
     if not entities:
         return text, mode
 
-    if not sys.maxunicode == 0xffff:
+    if sys.maxunicode != 0xFFFF:
         text = text.encode('utf-16-le')
 
     result = ''
@@ -121,11 +113,9 @@ def get_parsed_msg(message):
 
         if sys.maxunicode == 0xffff:
             part = text[offset:entity.offset]
-            result += part + entity_text
         else:
             part = text[offset * 2:entity.offset * 2].decode('utf-16-le')
-            result += part + entity_text
-
+        result += part + entity_text
         offset = entity.offset + entity.length
 
     if sys.maxunicode == 0xffff:
@@ -180,9 +170,7 @@ def parse_button(data, name):
 def get_reply_msg_btns_text(message):
     text = ''
     for column in message.reply_markup.inline_keyboard:
-        btn_num = 0
-        for btn in column:
-            btn_num += 1
+        for btn_num, btn in enumerate(column, start=1):
             name = btn['text']
 
             if 'url' in btn:
@@ -414,7 +402,7 @@ async def vars_parser(text, message, chat_id, md=False, event=None, user=None):
     current_time = html.escape(format_time(time=current_datetime, locale=language_code), quote=False)
     current_timedate = html.escape(format_datetime(datetime=current_datetime, locale=language_code), quote=False)
 
-    text = text.replace('{first}', first_name) \
+    return text.replace('{first}', first_name) \
         .replace('{last}', last_name) \
         .replace('{fullname}', first_name + " " + last_name) \
         .replace('{id}', str(user_id).replace('{userid}', str(user_id))) \
@@ -426,4 +414,3 @@ async def vars_parser(text, message, chat_id, md=False, event=None, user=None):
         .replace('{date}', str(current_date)) \
         .replace('{time}', str(current_time)) \
         .replace('{timedate}', str(current_timedate))
-    return text

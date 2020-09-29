@@ -170,10 +170,7 @@ async def is_user_admin(chat_id, user_id):
     except BadRequest:
         return False
     else:
-        if user_id in admins:
-            return True
-        else:
-            return False
+        return user_id in admins
 
 
 async def check_admin_rights(chat_id, user_id, rights):
@@ -216,10 +213,7 @@ async def is_chat_creator(chat_id, user_id):
     if user_id not in admin_rights:
         return False
 
-    if admin_rights[user_id]['status'] == 'creator':
-        return True
-
-    return False
+    return admin_rights[user_id]['status'] == 'creator'
 
 
 async def get_user_and_text(message, send_text=True, allow_self=False):
@@ -232,7 +226,11 @@ async def get_user_and_text(message, send_text=True, allow_self=False):
         user = await get_user_by_id(message.reply_to_message.from_user.id)
 
     # Get all mention entities
-    entities = filter(lambda ent: ent['type'] == 'text_mention' or ent['type'] == 'mention', message.entities)
+    entities = filter(
+        lambda ent: ent['type'] in ['text_mention', 'mention'],
+        message.entities,
+    )
+
     for item in entities:
         mention = item.get_text(message.text)
 
@@ -249,21 +247,20 @@ async def get_user_and_text(message, send_text=True, allow_self=False):
 
     if not user:
         # Ok, now we really be unsure, so don't return right away
-        if len(args) > 1:
-            if args[1].isdigit():
-                user = await get_user_by_id(int(args[1]))
+        if len(args) > 1 and args[1].isdigit():
+            user = await get_user_by_id(int(args[1]))
 
         if len(args) > 2:
             text = args[2]
 
-        # Not first because ex. admins can /warn (user) and reply to offended user
-        if not user and "reply_to_message" in message:
-            if len(args) > 1:
-                text = message.get_args()
-            return await get_user_by_id(message.reply_to_message.from_user.id), text
+    # Not first because ex. admins can /warn (user) and reply to offended user
+    if not user and "reply_to_message" in message:
+        if len(args) > 1:
+            text = message.get_args()
+        return await get_user_by_id(message.reply_to_message.from_user.id), text
 
-        if not user and allow_self is True:
-            user = await get_user_by_id(message.from_user.id)
+    if not user and allow_self is True:
+        user = await get_user_by_id(message.from_user.id)
 
     if not user:
         if send_text:
